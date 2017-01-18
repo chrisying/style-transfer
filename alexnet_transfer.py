@@ -64,7 +64,7 @@ im_style = im_style - mean(im_style)
 #         .softmax(name='prob'))
 
 
-net_data = load("/tmp/bvlc_alexnet.npy").item()
+net_data = load("bvlc_alexnet.npy").item()
 
 def conv(input, kernel, biases, k_h, k_w, c_o, s_h, s_w,  padding="VALID", group=1):
     '''From https://github.com/ethereon/caffe-tensorflow
