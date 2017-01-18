@@ -64,7 +64,7 @@ im_style = im_style - mean(im_style)
 #         .softmax(name='prob'))
 
 
-net_data = load("bvlc_alexnet.npy").item()
+net_data = load("/tmp/bvlc_alexnet.npy").item()
 
 def conv(input, kernel, biases, k_h, k_w, c_o, s_h, s_w,  padding="VALID", group=1):
     '''From https://github.com/ethereon/caffe-tensorflow
@@ -193,7 +193,7 @@ loss_content = 0.5 * tf.reduce_sum(tf.square(tf.subtract(content, r_conv5_reshap
 #                   + w4/(ns[3]**2 * ms[3]**2) * tf.reduce_sum(tf.square(tf.subtract(g4, r_g4)))
 #                   + w5/(ns[4]**2 * ms[4]**2) * tf.reduce_sum(tf.square(tf.subtract(g5, r_g5))))
 loss_style = 0.5 / (n4 ** 2 * m4 ** 2) * tf.reduce_sum(tf.square(tf.subtract(style, r_g4)))
-alpha = 0.0; beta = 0.001
+alpha = 1.0; beta = 1000.0
 loss = alpha * loss_content + beta * loss_style
 #opt_op = tf.train.GradientDescentOptimizer(0.1).minimize(loss, var_list=[recon])
 opt_op = tf.train.AdamOptimizer().minimize(loss, var_list=[recon])
@@ -206,15 +206,17 @@ t = time.time()
 
 content_feature = sess.run(conv5, feed_dict={x:[im_content]})
 style_matrix = sess.run(g4, feed_dict={x:[im_style]})
-for i in xrange(100):
+for i in xrange(100000):
     l, _ = sess.run([loss, opt_op], feed_dict={content: content_feature[0, :, :, :], style: style_matrix})
     print 'Iter: %d, Loss: %f' % (i, l)
 r_im = sess.run(recon, feed_dict={content: content_feature[0, :, :, :]})[0, :, :, :]
+save('raw_image.npy', r_im)
 min_im = np.min(r_im)
 max_im = np.max(r_im)
 range_im = max_im - min_im
 r_im_scaled = (r_im - min_im) * 255.0 / range_im
 
+# TODO: this scaling is bad
 imsave('reconstruction.png', r_im_scaled)
 
 print time.time()-t
