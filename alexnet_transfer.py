@@ -196,6 +196,7 @@ loss_content = 0.5 * tf.reduce_sum(tf.square(tf.subtract(content, r_conv5_reshap
 #                   + w5/(ns[4]**2 * ms[4]**2) * tf.reduce_sum(tf.square(tf.subtract(g5, r_g5))))
 loss_style = 0.5 / (n4 ** 2 * m4 ** 2) * tf.reduce_sum(tf.square(tf.subtract(style, r_g4)))
 alpha = 1.0; beta = 10000.0
+# TODO: maybe add Lagrange multiplier to discourage extreme values
 loss = alpha * loss_content + beta * loss_style
 #opt_op = tf.train.GradientDescentOptimizer(0.1).minimize(loss, var_list=[recon])
 opt_op = tf.train.AdamOptimizer().minimize(loss, var_list=[recon])
