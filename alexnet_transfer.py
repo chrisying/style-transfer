@@ -180,7 +180,9 @@ n4 = g4.get_shape().as_list()[0]
 ## Reconstruction
 content = tf.placeholder(tf.float32, conv5.get_shape()[1:])
 style = tf.placeholder(tf.float32, g4.get_shape())
-recon = tf.Variable(tf.random_normal((1,) + xdim, stddev=1))
+#recon = tf.Variable(tf.random_normal((1,) + xdim, stddev=1))
+im_a = np.reshape(im_content, (1,)+im_content.shape)
+recon = tf.Variable(im_a)
 
 #r_conv5, r_g1, r_g2, r_g3, r_g4, r_g5, _ = conv5_and_grams(recon)
 r_conv5, r_g4, _ = conv5_and_grams(recon)
@@ -193,7 +195,7 @@ loss_content = 0.5 * tf.reduce_sum(tf.square(tf.subtract(content, r_conv5_reshap
 #                   + w4/(ns[3]**2 * ms[3]**2) * tf.reduce_sum(tf.square(tf.subtract(g4, r_g4)))
 #                   + w5/(ns[4]**2 * ms[4]**2) * tf.reduce_sum(tf.square(tf.subtract(g5, r_g5))))
 loss_style = 0.5 / (n4 ** 2 * m4 ** 2) * tf.reduce_sum(tf.square(tf.subtract(style, r_g4)))
-alpha = 1.0; beta = 1000.0
+alpha = 1.0; beta = 10000.0
 loss = alpha * loss_content + beta * loss_style
 #opt_op = tf.train.GradientDescentOptimizer(0.1).minimize(loss, var_list=[recon])
 opt_op = tf.train.AdamOptimizer().minimize(loss, var_list=[recon])
